@@ -1,0 +1,7 @@
+Django==3.2
+djangorestframework>=3.14,<4.0
+python-decouple
+psycopg2-binary
+djangorestframework-simplejwt
+
+
