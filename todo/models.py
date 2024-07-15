@@ -1,7 +1,8 @@
 from django.db import models
+from django.core.mail import send_mail 
 from decouple import config
 
-CELERY_EMAIL_SENDER=config('CELERY_EMAIL_SENDER')
+CELERY_EMAIL_SENDER = config('CELERY_EMAIL_SENDER')  
 
 class TodoTask(models.Model):
     id = models.AutoField(primary_key=True)
@@ -10,6 +11,7 @@ class TodoTask(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     deadline = models.DateTimeField()
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)  
 
     def __str__(self):
         return self.name
