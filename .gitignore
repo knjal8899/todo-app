@@ -1,46 +1,21 @@
-# Python Bytecode
+*.pyc
 __pycache__/
-*.py[cod]
 *.pyo
 *.pyd
-*.pdb
-*.egg
-*.egg-info
-*.venv
+*.db
+*.sqlite3
 *.env
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-staticfiles/
-media/
-*.mo
-*.pot
-
-
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv/
-*.env
-
-# VS Code
-.vscode/
-
-# IDEs
-.idea/
-*.sublime-workspace
-*.sublime-project
-
-# MacOS
+*.gitignore
 .DS_Store
-
-# Windows
-Thumbs.db
-desktop.ini
-
-# System
-*.swp
-*.swo
+*.log
+*.csv
+*.pdf
+*.git
+*.gitmodules
+.vscode/
+*.iml
+.idea/
+*.egg-info/
+*.tox/
+*.coverage
+*.mypy_cache/

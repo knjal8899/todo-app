@@ -8,10 +8,13 @@ services:
     command: gunicorn todoproject.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/code
+      - static_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
     ports:
-      - "80:8000"
+      - "8000:8000"
     depends_on:
       - db
+      - redis
     env_file:
       - .env
 
@@ -34,6 +37,24 @@ services:
       - "80:80"
     depends_on:
       - web
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A todoproject worker --loglevel=info
+    depends_on:
+      - redis
+      - web
+    env_file:
+      - .env
+    volumes:
+      - .:/code
 
 volumes:
   postgres_data:

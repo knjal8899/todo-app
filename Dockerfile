@@ -6,7 +6,6 @@ ENV PYTHONUNBUFFERED 1  # Ensure that the output from the application is logged 
 WORKDIR /code
 
 COPY requirements.txt /code/
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /code/

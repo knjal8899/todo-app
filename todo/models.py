@@ -1,5 +1,7 @@
 from django.db import models
+from decouple import config
 
+CELERY_EMAIL_SENDER=config('CELERY_EMAIL_SENDER')
 
 class TodoTask(models.Model):
     id = models.AutoField(primary_key=True)
@@ -12,3 +14,11 @@ class TodoTask(models.Model):
     def __str__(self):
         return self.name
     
+    def send_reminder_email(self):
+        send_mail(
+            'Reminder for your Todo Task',
+            f'Reminder: {self.name} is due soon. Please complete it before {self.deadline}.',
+            f'{CELERY_EMAIL_SENDER}', 
+            [self.user.email], 
+            fail_silently=False,
+        )
