@@ -5,7 +5,7 @@ from .models import TodoTask
 class TodoTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoTask
-        fields = ['id', 'created', 'modified', 'name', 'description', 'deadline']
+        fields = ['id', 'created_at', 'modified_at', 'name', 'description', 'deadline']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
