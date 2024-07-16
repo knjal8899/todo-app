@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'todo',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -101,6 +103,13 @@ CELERY_TASK_SERIALIZER = config('CELERY_TASK_SERIALIZER')
 CELERY_RESULT_SERIALIZER = config('CELERY_RESULT_SERIALIZER')
 CELERY_TIMEZONE = config('CELERY_TIMEZONE')
 
+CELERY_BEAT_SCHEDULE = {
+    'send-reminder-every-hour': {
+        'task': 'todo_app.tasks.send_reminder_email',
+        'schedule': crontab(minute=0, hour='*/1'),
+        'args': (1,), 
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
