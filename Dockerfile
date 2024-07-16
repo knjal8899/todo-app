@@ -1,15 +1,18 @@
 FROM python:3.7
 
-ENV PYTHONDONTWRITEBYTECODE 1  # Prevent Python from writing .pyc files to disk
-ENV PYTHONUNBUFFERED 1  # Ensure that the output from the application is logged immediately
-
 WORKDIR /code
 
-COPY requirements.txt /code/
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
 
-COPY . /code/
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+COPY . .
+
+RUN python manage.py collectstatic --noinput
+
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "todoproject.wsgi:application"]
+CMD ["gunicorn", "todo_app.wsgi:application", "--bind", "0.0.0.0:8000"]

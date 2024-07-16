@@ -7,43 +7,56 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('todo', '0003_auto_20240715_2045'),
+        ("todo", "0003_auto_20240715_2045"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='todotask',
-            old_name='deadline',
-            new_name='deadline_ts',
+            model_name="todotask",
+            old_name="deadline",
+            new_name="deadline_ts",
         ),
         migrations.AddField(
-            model_name='todotask',
-            name='is_active',
+            model_name="todotask",
+            name="is_active",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='todotask',
-            name='priority',
-            field=models.CharField(choices=[('HIGH', 'High'), ('MEDIUM', 'Medium'), ('LOW', 'Low')], default='MEDIUM', max_length=10),
+            model_name="todotask",
+            name="priority",
+            field=models.CharField(
+                choices=[("HIGH", "High"), ("MEDIUM", "Medium"), ("LOW", "Low")],
+                default="MEDIUM",
+                max_length=10,
+            ),
         ),
         migrations.AddField(
-            model_name='todotask',
-            name='remind_at',
+            model_name="todotask",
+            name="remind_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='todotask',
-            name='status',
-            field=models.CharField(choices=[('TODO', 'Todo'), ('INPROGRESS', 'In Progress'), ('COMPLETED', 'Completed')], default='TODO', max_length=20),
+            model_name="todotask",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("TODO", "Todo"),
+                    ("INPROGRESS", "In Progress"),
+                    ("COMPLETED", "Completed"),
+                ],
+                default="TODO",
+                max_length=20,
+            ),
         ),
         migrations.AddField(
-            model_name='todotask',
-            name='user',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='auth.user'),
+            model_name="todotask",
+            name="user",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="auth.user"
+            ),
             preserve_default=False,
         ),
     ]

@@ -4,20 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('todo', '0002_auto_20240715_2042'),
+        ("todo", "0002_auto_20240715_2042"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='todotask',
-            old_name='created',
-            new_name='created_at',
+            model_name="todotask",
+            old_name="created",
+            new_name="created_at",
         ),
         migrations.RenameField(
-            model_name='todotask',
-            old_name='modified',
-            new_name='modified_at',
+            model_name="todotask",
+            old_name="modified",
+            new_name="modified_at",
         ),
     ]

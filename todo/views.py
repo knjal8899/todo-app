@@ -8,9 +8,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import TodoTask
 from .serializers import TodoTaskSerializer, UserSerializer
 
+
 class RegisterUserView(APIView):
     def post(self, request):
-        """         
+        """
         Register a new user.
 
         Request URL: `/api/v1/register/`
@@ -34,13 +35,17 @@ class RegisterUserView(APIView):
                 "email": ["This field is required."],
                 "password": ["This field is required."],
                 "username": ["This field is required."]
-            }    
+            }
         """
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "User registered successfully!"},
+                status=status.HTTP_201_CREATED,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LoginUserView(APIView):
     def post(self, request):
@@ -68,20 +73,28 @@ class LoginUserView(APIView):
                 "error": "Invalid credentials"
             }
         """
-        username = request.data.get('username')
-        password = request.data.get('password')
+        username = request.data.get("username")
+        password = request.data.get("password")
 
         if not username or not password:
-            return Response({'error': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = authenticate(username=username, password=password)
         if user:
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            })
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            )
+        return Response(
+            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+
 
 class TodoTaskListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -91,7 +104,7 @@ class TodoTaskListView(APIView):
         List and create Todo tasks.
 
         URL: `/api/v1/tasks/`
-            
+
         Success Response:
             Status Code: 200 OK
             {
@@ -109,7 +122,7 @@ class TodoTaskListView(APIView):
                     }
                 ]
             }
-            
+
         Failure Response:
             Status Code: 400 Bad Request
             {
@@ -161,12 +174,13 @@ class TodoTaskListView(APIView):
                 }
             }
         """
-        serializer = TodoTaskSerializer(data=request.data, context={'request': request})
+        serializer = TodoTaskSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class TodoTaskDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -197,7 +211,7 @@ class TodoTaskDetailView(APIView):
                     "priority": "MEDIUM"
                 }
             }
-            
+
         Failure Response:
             Status Code: 404 Not Found
             {
@@ -273,4 +287,6 @@ class TodoTaskDetailView(APIView):
         task = self.get_object(pk)
         task.is_active = False
         task.save()
-        return Response({'message': 'Task deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Task deleted successfully."}, status=status.HTTP_204_NO_CONTENT
+        )
