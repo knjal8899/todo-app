@@ -1,8 +1,9 @@
 from celery import shared_task
 from django.utils import timezone
 from .models import TodoTask
-from .utils import send_reminder_email  
+from .utils import send_reminder_email
 from todo_app.constants import REMINDER_TIME_DELTA
+
 
 @shared_task
 def send_reminder_emails():

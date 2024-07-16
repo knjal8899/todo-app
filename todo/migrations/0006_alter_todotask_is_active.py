@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('todo', '0005_alter_todotask_remind_at'),
+        ("todo", "0005_alter_todotask_remind_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='todotask',
-            name='is_active',
+            model_name="todotask",
+            name="is_active",
             field=models.BooleanField(default=True),
         ),
     ]
