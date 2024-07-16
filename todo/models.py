@@ -17,7 +17,7 @@ class TodoTask(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='TODO')
     is_active = models.BooleanField(default=False)
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
-    remind_at = models.DateTimeField()
+    remind_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.name

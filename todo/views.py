@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,9 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import TodoTask
 from .serializers import TodoTaskSerializer, UserSerializer
 
-
 class RegisterUserView(APIView):
-   
     def post(self, request):
         """         
         Register a new user.
@@ -36,7 +35,6 @@ class RegisterUserView(APIView):
                 "password": ["This field is required."],
                 "username": ["This field is required."]
             }    
-
         """
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -44,12 +42,9 @@ class RegisterUserView(APIView):
             return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class LoginUserView(APIView):
-
     def post(self, request):
         """
-            
         User login.
 
         Request URL: `/api/v1/login/`
@@ -72,8 +67,6 @@ class LoginUserView(APIView):
             {
                 "error": "Invalid credentials"
             }
-        
-
         """
         username = request.data.get('username')
         password = request.data.get('password')
@@ -90,9 +83,7 @@ class LoginUserView(APIView):
             })
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 class TodoTaskListView(APIView):
-  
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -112,36 +103,36 @@ class TodoTaskListView(APIView):
                         "name": "Sample Task",
                         "description": "This is a sample task",
                         "deadline_ts": "2023-01-02T12:00:00Z",
-                        "created_by": 1,
-                        "report_to": 2,
                         "status": "TODO",
-                        "is_deleted": false,
+                        "is_active": true,
                         "priority": "MEDIUM"
                     }
                 ]
             }
             
         Failure Response:
-        Status Code: 400 Bad Request
-        {
-            "errors": {
-                "field_name": ["Error message"]
+            Status Code: 400 Bad Request
+            {
+                "errors": {
+                    "field_name": ["Error message"]
+                }
             }
-        }
-
         """
-        tasks = TodoTask.objects.filter(is_deleted=False)
+        tasks = TodoTask.objects.filter(user=request.user, is_active=True)
         serializer = TodoTaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         """
-         Request Body:
+        Create a new Todo task.
+
+        Request URL: `/api/v1/tasks/`
+
+        Request Body:
         {
             "name": "New Task",
             "description": "This is a new task",
             "deadline_ts": "2024-12-31T23:59:59Z",
-            "report_to": 2,
             "status": "TODO",
             "priority": "MEDIUM"
         }
@@ -156,10 +147,8 @@ class TodoTaskListView(APIView):
                     "name": "New Task",
                     "description": "This is a new task",
                     "deadline_ts": "2024-12-31T23:59:59Z",
-                    "created_by": 1,
-                    "report_to": 2,
                     "status": "TODO",
-                    "is_deleted": false,
+                    "is_active": true,
                     "priority": "MEDIUM"
                 }
             }
@@ -172,26 +161,25 @@ class TodoTaskListView(APIView):
                 }
             }
         """
-        serializer = TodoTaskSerializer(data=request.data)
+        serializer = TodoTaskSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save(created_by=request.user)
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class TodoTaskDetailView(APIView):
     
+class TodoTaskDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
-        
         try:
-            return TodoTask.objects.get(pk=pk, is_deleted=False)
+            return TodoTask.objects.get(pk=pk, user=self.request.user, is_active=True)
         except TodoTask.DoesNotExist:
-            return None
+            raise Http404("Task not found or does not belong to the user.")
 
     def get(self, request, pk):
         """
+        Retrieve a specific Todo task.
+
         URL: `/api/v1/tasks/<pk>/`
 
         Success Response:
@@ -204,29 +192,26 @@ class TodoTaskDetailView(APIView):
                     "name": "Sample Task",
                     "description": "This is a sample task",
                     "deadline_ts": "2023-01-02T12:00:00Z",
-                    "created_by": 1,
-                    "report_to": 2,
                     "status": "TODO",
-                    "is_deleted": false,
+                    "is_active": true,
                     "priority": "MEDIUM"
                 }
             }
             
         Failure Response:
-        Status Code: 404 Not Found
-        {
-            "error": "Task not found."
-        }
-
+            Status Code: 404 Not Found
+            {
+                "error": "Task not found."
+            }
         """
         task = self.get_object(pk)
-        if not task:
-            return Response({'error': 'Task not found.'}, status=status.HTTP_404_NOT_FOUND)
         serializer = TodoTaskSerializer(task)
         return Response(serializer.data)
 
     def put(self, request, pk):
         """
+        Update a specific Todo task.
+
         URL: `/api/v1/tasks/<pk>/`
 
         Request Body:
@@ -234,7 +219,6 @@ class TodoTaskDetailView(APIView):
             "name": "Updated Task",
             "description": "This is an updated task",
             "deadline_ts": "2025-01-01T23:59:59Z",
-            "report_to": 2,
             "status": "INPROGRESS",
             "priority": "HIGH"
         }
@@ -249,24 +233,19 @@ class TodoTaskDetailView(APIView):
                     "name": "Updated Task",
                     "description": "This is an updated task",
                     "deadline_ts": "2025-01-01T23:59:59Z",
-                    "created_by": 1,
-                    "report_to": 2,
                     "status": "INPROGRESS",
-                    "is_deleted": false,
+                    "is_active": true,
                     "priority": "HIGH"
                 }
             }
+
         Failure Response:
             Status Code: 404 Not Found
             {
                 "error": "Task not found."
             }
-
         """
         task = self.get_object(pk)
-        if not task:
-            return Response({'error': 'Task not found.'}, status=status.HTTP_404_NOT_FOUND)
-
         serializer = TodoTaskSerializer(task, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -275,8 +254,10 @@ class TodoTaskDetailView(APIView):
 
     def delete(self, request, pk):
         """
+        Delete a specific Todo task.
+
         URL: `/api/v1/tasks/<pk>/`
-        
+
         Success Response:
             Status Code: 204 No Content
             {
@@ -288,13 +269,8 @@ class TodoTaskDetailView(APIView):
             {
                 "error": "Task not found."
             }
-    
-        
         """
         task = self.get_object(pk)
-        if not task:
-            return Response({'error': 'Task not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        task.is_deleted = True
+        task.is_active = False
         task.save()
         return Response({'message': 'Task deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
